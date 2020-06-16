@@ -1,4 +1,4 @@
-package br.ba.acosta.test;
+package br.ba.acosta.tests;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;

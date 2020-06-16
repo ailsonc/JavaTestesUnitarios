@@ -1,8 +1,9 @@
-package br.ba.acosta.servicos;
+package br.ba.acosta.tests;
 
 import br.ba.acosta.entidades.Filme;
 import br.ba.acosta.entidades.Locacao;
 import br.ba.acosta.entidades.Usuario;
+import br.ba.acosta.servicos.LocacaoService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package br.ba.acosta.test;
+package br.ba.acosta.tests;
 
 import br.ba.acosta.entidades.Usuario;
 import org.junit.Assert;
