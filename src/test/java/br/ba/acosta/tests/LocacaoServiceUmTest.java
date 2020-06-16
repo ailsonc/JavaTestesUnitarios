@@ -7,7 +7,9 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static br.ba.acosta.utils.DataUtils.isMesmaData;
 import static br.ba.acosta.utils.DataUtils.obterDataComDiferencaDias;
@@ -20,11 +22,13 @@ public class LocacaoServiceUmTest {
         //cenario
         LocacaoService service = new LocacaoService();
         Usuario usuario = new Usuario("Ailson");
-        Filme filme = new Filme("Filme",2, 1.5);
+        List<Filme> filmes = Arrays.asList(
+                new Filme("Filme",2, 1.5)
+        );
 
         try {
             //acao
-            Locacao locacao = service.alugarFilme(usuario,filme);
+            Locacao locacao = service.alugarFilme(usuario,filmes);
 
             //verificacao - old
             Assert.assertTrue(locacao.getValor() == 1.5);
