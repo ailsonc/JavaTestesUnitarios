@@ -6,17 +6,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import br.ba.acosta.dao.LocacaoDAO;
 import br.ba.acosta.entidades.Filme;
 import br.ba.acosta.entidades.Locacao;
 import br.ba.acosta.entidades.Usuario;
 import br.ba.acosta.exception.FilmeSemEstoqueException;
 import br.ba.acosta.exception.LocadoraException;
 import br.ba.acosta.utils.DataUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import buildermaster.BuilderMaster;
 
 public class LocacaoService {
-	
+	private LocacaoDAO dao;
+	private SPCService spcService;
+	private EmailService emailService;
+
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocadoraException {
 
 	    if(usuario == null) {
@@ -31,6 +34,18 @@ public class LocacaoService {
 			if(filme.getEstoque() == 0) {
 				throw new FilmeSemEstoqueException("Filme sem estoque");
 			}
+		}
+
+		boolean negativado;
+
+		try {
+			negativado = spcService.possuiNegativacao(usuario);
+		} catch (Exception e) {
+			throw new LocadoraException("Problema com SPC, tente nocamente");
+		}
+
+		if(negativado) {
+			throw new LocadoraException("Usuário Negativado");
 		}
 
 		Locacao locacao = new Locacao();
@@ -66,11 +81,51 @@ public class LocacaoService {
 		
 		//Salvando a locacao...	
 		//TODO adicionar método para salvar
-		
+		dao.salvar(locacao);
+
 		return locacao;
 	}
 
+	public void notificarAtrasos() {
+		List<Locacao> locacoes = dao.obterLocacoesPendentes();
+		for(Locacao locacao: locacoes) {
+			if(locacao.getDataRetorno().before(new Date())) {
+				emailService.notificarAtraso(locacao.getUsuario());
+			}
+		}
+	}
+
+	public void porrogarLocacao(Locacao locacao, int dias) {
+		Locacao novaLocacao = new Locacao();
+		novaLocacao.setUsuario(locacao.getUsuario());
+		novaLocacao.setFilmes(locacao.getFilmes());
+		novaLocacao.setDataLocacao(new Date());
+		novaLocacao.setDataRetorno(DataUtils.obterDataComDiferencaDias(dias));
+		novaLocacao.setValor(locacao.getValor() * dias);
+		dao.salvar(novaLocacao);
+	}
+
+	/*
+	//Injecao da dependencia dao
+	public void setLocacaoDAO(LocacaoDAO dao) {
+		this.dao = dao;
+	}
+
+	//Injecao da dependencia spcService
+	public void setSpcService(SPCService spcService) {
+		this.spcService = spcService;
+	}
+
+	//Injecao da dependencia spcService
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
+	}
+
+	 */
+
 	public static void main(String[] args) {
+		//	new BuilderMaster().gerarCodigoClasse(Locacao.class);
+
 		/*
 		//cenario
 		LocacaoService service = new LocacaoService();

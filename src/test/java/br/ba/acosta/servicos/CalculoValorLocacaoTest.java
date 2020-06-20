@@ -1,5 +1,7 @@
 package br.ba.acosta.servicos;
 
+import br.ba.acosta.dao.LocacaoDAO;
+import br.ba.acosta.dao.LocacaoDAOFake;
 import br.ba.acosta.entidades.Filme;
 import br.ba.acosta.entidades.Locacao;
 import br.ba.acosta.entidades.Usuario;
@@ -9,17 +11,30 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized.Parameter;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static br.ba.acosta.builders.FilmeBuilder.umFilme;
+import static br.ba.acosta.builders.UsuarioBuilder.umUsuario;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Parameterized.class)
 public class CalculoValorLocacaoTest {
+    @InjectMocks
     private LocacaoService service;
+    @Mock
+    private LocacaoDAO dao;
+    @Mock
+    private SPCService spcService;
+
 
     @Parameter
     public List<Filme> filmes;
@@ -30,11 +45,19 @@ public class CalculoValorLocacaoTest {
     @Parameter(value=2)
     public String nomeTest;
 
-    private static Filme filme = new Filme("Filme",2, 4.0);
+    private static Filme filme = umFilme().agora();
 
     @Before
     public void setup() {
+        MockitoAnnotations.initMocks(this);
+        /*
         service = new LocacaoService();
+        LocacaoDAO dao = mock(LocacaoDAO.class);
+        service.setLocacaoDAO(dao);
+
+        SPCService spcService = mock(SPCService.class);
+        service.setSpcService(spcService);
+        */
     }
 
     @Parameters(name="{2}")
@@ -52,13 +75,14 @@ public class CalculoValorLocacaoTest {
     @Test
     public void deveCalcularValorLocacaoConsiderandoDescontos() throws Exception {
         //cenario
-        Usuario usuario = new Usuario("Ailson");
+        Usuario usuario = umUsuario().agora();
 
         //acao
         Locacao locacao = service.alugarFilme(usuario, filmes);
 
         //verificacao
         assertThat(locacao.getValor(), is(valorLocacao));
+
     }
 
 }
